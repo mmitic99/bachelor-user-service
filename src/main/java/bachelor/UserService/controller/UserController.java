@@ -4,12 +4,15 @@ import bachelor.UserService.dto.CredentialsDto;
 import bachelor.UserService.dto.DataKeyDto;
 import bachelor.UserService.dto.DataKeyPairDto;
 import bachelor.UserService.dto.UserDto;
+import bachelor.UserService.exception.BadRequestException;
 import bachelor.UserService.service.AwsKeyManagementService;
 import bachelor.UserService.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Base64;
 
 @RestController
 @RequestMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -32,5 +35,13 @@ public class UserController {
     @GetMapping("{id}/data-key-pair")
     public ResponseEntity<DataKeyPairDto> getKeyPair(@PathVariable String id){
         return ResponseEntity.ok(awsKeyManagementService.GenerateDataKeyPair(id));
+    }
+
+    @GetMapping("decryptKey")
+    public ResponseEntity<String> decryptKey(@RequestBody DataKeyDto key){
+        if(key.getCiphertext().length() != 224 && key.getCiphertext().length() != 1840){
+            throw new BadRequestException("Key not valid");
+        }
+        return ResponseEntity.ok(awsKeyManagementService.DecryptKey(Base64.getDecoder().decode(key.getCiphertext())));
     }
 }
