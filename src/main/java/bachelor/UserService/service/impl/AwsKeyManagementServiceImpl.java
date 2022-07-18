@@ -90,22 +90,17 @@ public class AwsKeyManagementServiceImpl implements AwsKeyManagementService {
 
     @SneakyThrows
     @Override
-    public DataKeyDto GenerateDataKey(String id) {
+    public DataKeyDto GenerateDataKeyForUser(String id) {
         if (ObjectId.isValid(id)) {
             ObjectId objectId = new ObjectId(id);
 
-            String keyId = GetKeyByAlias("bachelor-order");
-
-            var response = kmsClient.generateDataKey(GenerateDataKeyRequest.builder().keyId(keyId).keySpec(DataKeySpec.AES_128).build());
-
-            var plain = Base64.getEncoder().encodeToString(response.plaintext().asByteArray());
-            var cipher = Base64.getEncoder().encodeToString(response.ciphertextBlob().asByteArray());
+            DataKeyDto dataKeyDto = GenerateDataKey();
 
             User user = userRepository.findById(objectId).orElseThrow(() -> new BadRequestException("Invalid user"));
-            user.addKey(DataKey.builder().ciphertext(cipher).build());
+            user.addKey(DataKey.builder().ciphertext(dataKeyDto.getCiphertext()).build());
             userRepository.save(user);
 
-            return DataKeyDto.builder().plaintext(plain).ciphertext(cipher).build();
+            return DataKeyDto.builder().plaintext(dataKeyDto.getPlaintext()).ciphertext(dataKeyDto.getCiphertext()).build();
         }
 
         /*
@@ -119,7 +114,7 @@ public class AwsKeyManagementServiceImpl implements AwsKeyManagementService {
 
     @SneakyThrows
     @Override
-    public DataKeyPairDto GenerateDataKeyPair(String id) {
+    public DataKeyPairDto GenerateDataKeyPairForUser(String id) {
         if (ObjectId.isValid(id)) {
             ObjectId objectId = new ObjectId(id);
 
@@ -147,5 +142,18 @@ public class AwsKeyManagementServiceImpl implements AwsKeyManagementService {
         }
         throw new BadRequestException("User id is invalid");
 
+    }
+
+    @Override
+    public DataKeyDto GenerateDataKey() {
+
+        String keyId = GetKeyByAlias("bachelor-order");
+
+        var response = kmsClient.generateDataKey(GenerateDataKeyRequest.builder().keyId(keyId).keySpec(DataKeySpec.AES_128).build());
+
+        var plain = Base64.getEncoder().encodeToString(response.plaintext().asByteArray());
+        var cipher = Base64.getEncoder().encodeToString(response.ciphertextBlob().asByteArray());
+
+        return DataKeyDto.builder().plaintext(plain).ciphertext(cipher).build();
     }
 }

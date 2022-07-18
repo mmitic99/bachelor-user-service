@@ -23,6 +23,7 @@ public class User {
     private String password;
     private List<DataKey> dataKeys;
     private List<DataKeyPair> dataKeyPairs;
+    private String key;
 
     public List<DataKey> addKey(DataKey key){
         if(dataKeys == null){

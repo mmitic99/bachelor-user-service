@@ -27,14 +27,20 @@ public class UserController {
         return ResponseEntity.ok(userService.login(credentialsDto));
     }
 
+    @GetMapping("create-admin")
+    public ResponseEntity<Object> createAdmin(){
+        userService.createAdmin();
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/{id}/data-key")
     public ResponseEntity<DataKeyDto> getKey(@PathVariable String id){
-        return ResponseEntity.ok(awsKeyManagementService.GenerateDataKey(id));
+        return ResponseEntity.ok(awsKeyManagementService.GenerateDataKeyForUser(id));
     }
 
     @GetMapping("{id}/data-key-pair")
     public ResponseEntity<DataKeyPairDto> getKeyPair(@PathVariable String id){
-        return ResponseEntity.ok(awsKeyManagementService.GenerateDataKeyPair(id));
+        return ResponseEntity.ok(awsKeyManagementService.GenerateDataKeyPairForUser(id));
     }
 
     @GetMapping("decryptKey")

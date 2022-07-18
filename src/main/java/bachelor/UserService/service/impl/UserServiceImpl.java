@@ -5,9 +5,9 @@ import bachelor.UserService.dto.UserDto;
 import bachelor.UserService.exception.BadRequestException;
 import bachelor.UserService.model.User;
 import bachelor.UserService.repository.UserRepository;
+import bachelor.UserService.service.AwsKeyManagementService;
 import bachelor.UserService.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final AwsKeyManagementService awsKeyManagementService;
 
     @Override
     public UserDto login(CredentialsDto credentialsDto) {
@@ -25,5 +26,10 @@ public class UserServiceImpl implements UserService {
         User user = users.stream().filter(user1 -> user1.getUsername().equals(credentialsDto.getUsername()) && user1.getPassword().equals(credentialsDto.getPassword())).findFirst().orElseThrow(() -> new BadRequestException("Username or password not match"));
 
         return UserDto.builder().username(credentialsDto.getUsername()).id(user.getId().toHexString()).build();
+    }
+
+    @Override
+    public void createAdmin() {
+        userRepository.save(User.builder().key(awsKeyManagementService.GenerateDataKey().getCiphertext()).password("admin").username("admin").build());
     }
 }

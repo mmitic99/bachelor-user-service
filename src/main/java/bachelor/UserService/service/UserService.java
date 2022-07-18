@@ -6,4 +6,6 @@ import bachelor.UserService.dto.UserDto;
 public interface UserService {
 
     UserDto login(CredentialsDto credentialsDto);
+
+    void createAdmin();
 }
