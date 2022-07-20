@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -13,4 +14,6 @@ import org.bson.types.ObjectId;
 public class UserDto {
     private String id;
     private String username;
+    private List<DataKeyDto> dataKeys;
+    private List<DataKeyPairDto> dataKeyPairs;
 }

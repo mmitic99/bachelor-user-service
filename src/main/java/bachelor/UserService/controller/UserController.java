@@ -27,6 +27,11 @@ public class UserController {
         return ResponseEntity.ok(userService.login(credentialsDto));
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<Object> getUser(@PathVariable String id){
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
     @GetMapping("create-admin")
     public ResponseEntity<Object> createAdmin(){
         userService.createAdmin();
@@ -43,7 +48,7 @@ public class UserController {
         return ResponseEntity.ok(awsKeyManagementService.GenerateDataKeyPairForUser(id));
     }
 
-    @GetMapping("decryptKey")
+    @PostMapping("decryptKey")
     public ResponseEntity<String> decryptKey(@RequestBody DataKeyDto key){
         if(key.getCiphertext().length() != 224 && key.getCiphertext().length() != 1840){
             throw new BadRequestException("Key not valid");

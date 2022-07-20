@@ -8,4 +8,6 @@ public interface UserService {
     UserDto login(CredentialsDto credentialsDto);
 
     void createAdmin();
+
+    UserDto getUserById(String id);
 }

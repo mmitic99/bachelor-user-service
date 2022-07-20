@@ -8,6 +8,8 @@ import bachelor.UserService.repository.UserRepository;
 import bachelor.UserService.service.AwsKeyManagementService;
 import bachelor.UserService.service.UserService;
 import lombok.AllArgsConstructor;
+import org.bson.types.ObjectId;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AwsKeyManagementService awsKeyManagementService;
+    private final ModelMapper mapper;
 
     @Override
     public UserDto login(CredentialsDto credentialsDto) {
@@ -31,5 +34,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createAdmin() {
         userRepository.save(User.builder().key(awsKeyManagementService.GenerateDataKey().getCiphertext()).password("admin").username("admin").build());
+    }
+
+    @Override
+    public UserDto getUserById(String id) {
+        if (ObjectId.isValid(id)) {
+            ObjectId userId = new ObjectId(id);
+
+            List<User> users = userRepository.findAll();
+            User user = users.stream().filter(user1 -> user1.getId().equals(userId)).
+            findFirst().orElseThrow(() -> new BadRequestException("User doesn't exist"));
+
+            return mapper.map(user, UserDto.class);
+        } else {
+            throw new BadRequestException("User id is invalid");
+        }
     }
 }
